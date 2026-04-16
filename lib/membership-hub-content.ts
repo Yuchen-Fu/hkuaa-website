@@ -10,6 +10,8 @@ export type HubMembershipRow = {
   subscriptionFee: string;
   /** Plain text bullets (no HTML). */
   requirements: string[];
+  /** Member privileges; shown in the membership schedule explorer when set. */
+  benefits?: readonly string[];
   applyHref?: string;
   pdfHref?: string;
 };
@@ -52,6 +54,11 @@ export const MEMBERSHIP_HUB_ROWS: HubMembershipRow[] = [
       "Only qualifications listed under Statutes III of the University Ordinance and Statutes, conferred by HKU, qualify (see the official HKU calendar / ordinance page).",
       "HKU SPACE qualifications are not eligible.",
     ],
+    benefits: [
+      "Booking of function rooms for dinner, event or meeting.",
+      "Enjoy 5% discount on Food & Beverage consumption at the HKUAA Clubhouse, upon payment via the HKU Graduate Credit Card embossed with HKUAA membership number.",
+      "Benefit from the reciprocal arrangement with The National University of Singapore Society (NUSS)—enjoy the dining and recreational facilities. For a Letter of Introduction, please email Membership Service at membership@hkuaa.hk.",
+    ],
     applyHref: "/membership/apply",
   },
   {
@@ -63,6 +70,13 @@ export const MEMBERSHIP_HUB_ROWS: HubMembershipRow[] = [
       "Any Ordinary Member upon payment and Executive Committee approval.",
       "Life members and spouse may enjoy privileges as determined by the Executive Committee.",
       "Submit HKU graduation document with the application.",
+    ],
+    benefits: [
+      "Prestigious name plate on a main wall of HKUAA Clubhouse.",
+      "10% discount for Food & Beverage consumption in HKUAA Clubhouse.",
+      "Spouse may enjoy the 10% discount as well, where applicable.",
+      "Free wine corkage for three bottles (self-brought wines to be consumed in HKUAA Clubhouse with expenditure).",
+      "Waived cake-cutting fees.",
     ],
     applyHref: "/membership/apply",
     pdfHref: "https://www.hkuaa.org.hk/photo/2021%20Events/Life_Member_Application_form_2025.pdf",
@@ -97,6 +111,9 @@ export const MEMBERSHIP_HUB_ROWS: HubMembershipRow[] = [
     requirements: [
       "Associate members or other eligible persons upon payment and Executive Committee approval.",
       "Submit HKU staff card with the application.",
+    ],
+    benefits: [
+      "Enjoy 5% discount on Food & Beverage consumption at the HKUAA Clubhouse, upon payment via the HKU Graduate Credit Card embossed with HKUAA membership number.",
     ],
     pdfHref: "https://www.hkuaa.org.hk/photo/2021%20Events/Associate_Life_Member_Application_form_2025.pdf",
   },

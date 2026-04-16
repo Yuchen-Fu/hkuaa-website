@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { listNewsWithExternal } from "@/lib/server/services";
+import { PAGE_THEME_IMAGES } from "@/lib/public-page-images";
 
 export const metadata: Metadata = {
   title: "News",
@@ -13,10 +15,21 @@ export default async function NewsPage() {
 
   return (
     <>
-      <section className="hero-template">
-        <div className="container-max">
-          <h1>News</h1>
-          <p>Announcements and updates from HKUAA.</p>
+      <section className="relative min-h-[220px] overflow-hidden sm:min-h-[280px]">
+        <Image
+          src={PAGE_THEME_IMAGES.newsHero}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0f1c33]/88 via-[#0f1c33]/45 to-transparent" />
+        <div className="relative z-[1] flex min-h-[220px] flex-col justify-end sm:min-h-[280px]">
+          <div className="container-max pb-8 pt-16 text-white">
+            <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">News</h1>
+            <p className="mt-2 max-w-xl text-sm text-white/88">Announcements and updates from HKUAA.</p>
+          </div>
         </div>
       </section>
       <section className="section-template">

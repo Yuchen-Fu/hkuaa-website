@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import HomeEntryReveal from "@/components/HomeEntryReveal";
 import HomeFullPageScroll from "@/components/HomeFullPageScroll";
 import HomeSlideNavigation from "@/components/HomeSlideNavigation";
 import { listCurrentAndUpcomingEvents, listNewsWithExternal } from "@/lib/server/services";
@@ -13,7 +14,8 @@ export default async function Home() {
   const news = publishedNews.slice(0, 3);
 
   return (
-    <HomeFullPageScroll>
+    <HomeEntryReveal>
+      <HomeFullPageScroll>
       <section
         id="home-slide-welcome"
         className="harvard-cover-wrap home-snap-section home-snap-hero home-snap-slide-lock"
@@ -145,6 +147,7 @@ export default async function Home() {
       </section>
 
       <HomeSlideNavigation />
-    </HomeFullPageScroll>
+      </HomeFullPageScroll>
+    </HomeEntryReveal>
   );
 }

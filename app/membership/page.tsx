@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MembershipScheduleExplorer from "@/components/MembershipScheduleExplorer";
 import { MEMBERSHIP_HUB_ROWS, MEMBERSHIP_NOTICE_GROUPS } from "@/lib/membership-hub-content";
 
 export const metadata: Metadata = {
@@ -26,58 +27,14 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      <section className="section-template border-t border-[#e8edf5]">
-        <div className="container-max">
-          <h2 className="text-xl font-semibold tracking-tight text-[#10204b] md:text-2xl">Membership schedule</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#4d5f7a]">
-            The table sets out each membership type, the applicable entrance fee and subscription, eligibility
-            requirements, and the channel through which applications are received.
-          </p>
+      <section className="section-template border-t border-[#e8edf5] bg-[#f7fafc] py-8 md:py-10">
+        <div className="container-max max-w-4xl">
+          <h2 className="text-center font-serif text-2xl font-semibold tracking-tight text-[#0c1f3d] md:text-[1.65rem]">
+            Membership categories
+          </h2>
+          <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-[#2b6cb0] via-[#4a7ab5] to-[#8b6d30]" />
 
-          <div className="mt-8 overflow-x-auto rounded-lg border border-[#dfe6ee] shadow-sm">
-            <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-              <thead className="bg-[#f4f7fb] text-[#1a2f4d]">
-                <tr>
-                  <th className="border-b border-[#dfe6ee] px-4 py-3 font-semibold">Type</th>
-                  <th className="border-b border-[#dfe6ee] px-4 py-3 font-semibold">Entrance</th>
-                  <th className="border-b border-[#dfe6ee] px-4 py-3 font-semibold">Subscription</th>
-                  <th className="border-b border-[#dfe6ee] px-4 py-3 font-semibold">Requirements</th>
-                  <th className="border-b border-[#dfe6ee] px-4 py-3 font-semibold">Apply</th>
-                </tr>
-              </thead>
-              <tbody className="text-[#334155]">
-                {MEMBERSHIP_HUB_ROWS.map((row) => (
-                  <tr key={row.id} className="align-top odd:bg-white even:bg-[#fafbfd]">
-                    <td className="border-b border-[#eef2f6] px-4 py-3 font-semibold text-[#0c3050]">{row.title}</td>
-                    <td className="border-b border-[#eef2f6] px-4 py-3 whitespace-nowrap">{row.entranceFee}</td>
-                    <td className="border-b border-[#eef2f6] px-4 py-3 whitespace-nowrap">{row.subscriptionFee}</td>
-                    <td className="border-b border-[#eef2f6] px-4 py-3">
-                      <ul className="list-disc space-y-1 pl-4 marker:text-[#94a3b8]">
-                        {row.requirements.map((r) => (
-                          <li key={r}>{r}</li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td className="border-b border-[#eef2f6] px-4 py-3">
-                      <div className="flex flex-col gap-2">
-                        {row.applyHref ? (
-                          <Link className="template-link font-semibold" href={row.applyHref}>
-                            Apply online
-                          </Link>
-                        ) : null}
-                        {row.pdfHref ? (
-                          <a className="template-link text-xs" href={row.pdfHref} target="_blank" rel="noreferrer">
-                            PDF form
-                          </a>
-                        ) : null}
-                        {!row.applyHref && !row.pdfHref ? <span className="text-xs text-[#94a3b8]">—</span> : null}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <MembershipScheduleExplorer rows={MEMBERSHIP_HUB_ROWS} />
         </div>
       </section>
 

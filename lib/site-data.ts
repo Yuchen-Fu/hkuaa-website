@@ -19,8 +19,8 @@ export const navLinks: NavItem[] = [
     label: "About Us",
     children: [
       { href: "/about", label: "HKUAA History" },
-      { href: "/about", label: "Office Bearers" },
-      { href: "/about", label: "Subcommittees" },
+      { href: "/about/office-bearers", label: "Office Bearers" },
+      { href: "/about/subcommittees", label: "Subcommittees" },
     ],
   },
   {

@@ -945,6 +945,12 @@ body {
 
 .home-event-spotlight-btn {
   margin-top: 1.15rem;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-end;
+  padding-left: 1.15rem;
+  padding-right: 1.15rem;
+  white-space: nowrap;
 }
 
 .home-youtube-section {
@@ -1123,8 +1129,12 @@ html.home-scroll-snap-active {
   justify-content: center;
 }
 
+.home-snap-event.home-snap-slide-lock .home-event-spotlight-inner {
+  justify-content: flex-end;
+}
+
 .home-snap-event.home-snap-slide-lock .home-event-spotlight-copy {
-  max-width: 100%;
+  max-width: min(30rem, 100%);
 }
 
 .home-snap-event.home-snap-slide-lock .home-event-spotlight-copy h2 {
@@ -1141,6 +1151,9 @@ html.home-scroll-snap-active {
 
 .home-snap-event.home-snap-slide-lock .home-event-spotlight-btn {
   margin-top: 0.75rem;
+  width: fit-content;
+  align-self: flex-end;
+  white-space: nowrap;
 }
 
 .home-snap-youtube.home-youtube-section {
