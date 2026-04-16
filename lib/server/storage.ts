@@ -4,12 +4,20 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import type { RuntimeStore } from "@/lib/server/types";
 import { defaultEvents, defaultNews } from "@/lib/server/default-content";
 
+function isServerlessReadOnlyCwd(): boolean {
+  /* Vercel/AWS Lambda: cwd is /var/task (read-only). Do not rely only on VERCEL — it can be missing from bundled server chunks. */
+  const cwd = process.cwd();
+  if (cwd === "/var/task" || cwd.startsWith("/var/task/")) return true;
+  if (process.env.VERCEL || process.env.VERCEL_ENV) return true;
+  if (process.env.AWS_LAMBDA_FUNCTION_NAME) return true;
+  return false;
+}
+
 function storeDir(): string {
   if (process.env.HKUAA_STORE_DIR) {
     return process.env.HKUAA_STORE_DIR;
   }
-  /* Vercel serverless: project dir is read-only; only os.tmpdir() is writable. */
-  if (process.env.VERCEL) {
+  if (isServerlessReadOnlyCwd()) {
     return path.join(os.tmpdir(), "hkuaa-website-runtime");
   }
   return path.join(process.cwd(), ".runtime");
