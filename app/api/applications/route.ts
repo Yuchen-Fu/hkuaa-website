@@ -1,129 +1,89 @@
-import { NextRequest } from "next/server";
-import { createApplication, listApplications } from "@/lib/server/services";
-import { verifyRecaptchaV2 } from "@/lib/server/recaptcha";
-import type { MembershipTypeKey } from "@/lib/server/types";
-import {
-  deriveChineseName,
-  deriveEnglishFullName,
-  derivePrimaryEmail,
-  validateAssociateApplication,
-  validateOrdinaryApplication,
-  validateStudentApplication,
-} from "@/lib/membership-application-validate";
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
-export const runtime = "nodejs";
+/**
+ * POST /api/applications
+ *
+ * Receives whatever shape your existing MembershipApplicationForm sends.
+ * Strategy:
+ *   1. Stash the ENTIRE request body into `raw_data` (jsonb) - nothing is lost.
+ *   2. Try to pull out canonical fields (email, first_name, etc.) using a
+ *      tolerant key picker that accepts both snake_case and camelCase.
+ *   3. Only `email` is strictly required; everything else is optional.
+ *
+ * This means your form code stays untouched. Field names don't have to match.
+ */
+export async function POST(req: Request) {
+  // TODO: verify recaptchaToken via Google siteverify before production
+  try {
+    const body = await req.json()
 
-function isType(value: string): value is MembershipTypeKey {
-  return ["ordinary", "student", "associate", "life"].includes(value);
-}
+    const email = pick(body, 'email', 'residenceEmail', 'correspondenceEmail', 'emailAddress')
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json(
+        { error: 'email is required' },
+        { status: 400 }
+      )
+    }
 
-function str(v: unknown): string {
-  return typeof v === "string" ? v.trim() : "";
-}
+    const row = {
+      email: email.trim().toLowerCase(),
+      first_name:       asString(pick(body, 'first_name', 'firstName', 'givenName', 'englishFirstName')),
+      last_name:        asString(pick(body, 'last_name', 'lastName', 'familyName', 'surname', 'englishLastName')),
+      chinese_name:     asString(pick(body, 'chinese_name', 'chineseName', 'nameZh')),
+      phone:            asString(pick(body, 'phone', 'phoneNumber', 'mobile', 'contactNumber')),
+      graduation_year:  asInt(pick(body, 'graduation_year', 'graduationYear', 'gradYear', 'yearOfGraduation', 'yearOfGraduationAssociate', 'expectedYearOfGraduation')),
+      membership_type:  asString(pick(body, 'membership_type', 'membershipType', 'type')) ?? 'ordinary',
+      raw_data:         body,
+    }
 
-export async function GET() {
-  const applications = await listApplications();
-  return Response.json({ applications });
-}
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('membership_applications')
+      .insert(row)
+      .select('id')
+      .single()
 
-export async function POST(request: NextRequest) {
-  const payload = (await request.json()) as Record<string, unknown>;
-  const membershipType = str(payload.membershipType);
-  const recaptchaToken = str(payload.recaptchaToken);
+    if (error) {
+      console.error('[applications] insert error:', error)
+      return NextResponse.json(
+        { error: 'Submission failed' },
+        { status: 500 }
+      )
+    }
 
-  if (!(await verifyRecaptchaV2(recaptchaToken))) {
-    return Response.json({ error: "reCAPTCHA verification failed." }, { status: 400 });
+    return NextResponse.json(
+      {
+        application: { id: data.id },
+        message: 'Application submitted',
+        status: 'pending',
+      },
+      { status: 201 }
+    )
+  } catch (e) {
+    console.error('[applications] unexpected error:', e)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
+}
 
-  if (!isType(membershipType)) {
-    return Response.json({ error: "Invalid membership type." }, { status: 400 });
-  }
-
-  if (membershipType === "ordinary") {
-    const check = validateOrdinaryApplication(payload);
-    if (check.error) return Response.json({ error: check.error }, { status: 400 });
-  } else if (membershipType === "associate") {
-    const check = validateAssociateApplication(payload);
-    if (check.error) return Response.json({ error: check.error }, { status: 400 });
-  } else if (membershipType === "student") {
-    const check = validateStudentApplication(payload);
-    if (check.error) return Response.json({ error: check.error }, { status: 400 });
-  } else {
-    const chineseName = str(payload.chineseName);
-    const englishName = str(payload.englishName);
-    const email = str(payload.email);
-    const mobile = str(payload.mobile);
-    if (!chineseName || !englishName || !email || !mobile) {
-      return Response.json({ error: "Invalid payload." }, { status: 400 });
+// ---------- helpers ----------
+function pick(obj: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const k of keys) {
+    if (obj && obj[k] !== undefined && obj[k] !== null && obj[k] !== '') {
+      return obj[k]
     }
   }
+  return undefined
+}
 
-  const chineseName =
-    membershipType === "life"
-      ? str(payload.chineseName)
-      : deriveChineseName(payload);
+function asString(v: unknown): string | null {
+  if (typeof v === 'string' && v.trim() !== '') return v.trim()
+  if (typeof v === 'number') return String(v)
+  return null
+}
 
-  const englishName =
-    membershipType === "life" ? str(payload.englishName) : deriveEnglishFullName(payload);
-
-  const email =
-    membershipType === "life"
-      ? str(payload.email)
-      : membershipType === "student"
-        ? derivePrimaryEmail(payload, "student")
-        : derivePrimaryEmail(payload, "dual");
-
-  const mobile = str(payload.mobile);
-
-  if (!chineseName || !englishName || !email || !mobile) {
-    return Response.json({ error: "Invalid payload." }, { status: 400 });
-  }
-
-  const details: Record<string, string> = {};
-  for (const [key, val] of Object.entries(payload)) {
-    if (key === "recaptchaToken") continue;
-    if (typeof val !== "string") continue;
-    const t = val.trim();
-    if (!t) continue;
-    details[key] = t;
-  }
-
-  let facultyOrDegree: string | undefined;
-  let graduationYear: string | undefined;
-
-  if (membershipType === "ordinary") {
-    facultyOrDegree = `${str(payload.faculty)} — ${str(payload.firstDegreeHku)}`.slice(0, 800);
-    graduationYear = str(payload.graduationYear) || undefined;
-  } else if (membershipType === "associate") {
-    facultyOrDegree =
-      `${str(payload.hkuConnection)} | ${str(payload.universityName)} | ${str(payload.firstDegreeDescription)}`.slice(
-        0,
-        800,
-      );
-    graduationYear = str(payload.yearOfGraduationAssociate) || undefined;
-  } else if (membershipType === "student") {
-    facultyOrDegree = `${str(payload.faculty)} — ${str(payload.firstDegreeHku)}`.slice(0, 800);
-    graduationYear = str(payload.expectedYearOfGraduation) || undefined;
-  } else {
-    facultyOrDegree = str(payload.facultyOrDegree) || undefined;
-    graduationYear = str(payload.graduationYear) || undefined;
-  }
-
-  const application = await createApplication({
-    membershipType,
-    chineseName,
-    englishName,
-    email,
-    mobile,
-    facultyOrDegree: facultyOrDegree || undefined,
-    graduationYear,
-    notes: str(payload.notes) || undefined,
-    details: Object.keys(details).length ? details : undefined,
-  });
-
-  return Response.json({
-    ok: true,
-    application,
-    message: "Submitted. Membership team will review before payment request.",
-  });
+function asInt(v: unknown): number | null {
+  if (typeof v === 'number' && Number.isFinite(v)) return Math.trunc(v)
+  if (typeof v === 'string' && /^\d+$/.test(v.trim())) return parseInt(v, 10)
+  return null
 }

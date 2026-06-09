@@ -12,8 +12,8 @@ export default function MembershipOrdinaryAcademicBlock() {
           </label>
           <select id="firstDegreeHku" name="firstDegreeHku" required className={`mt-1 ${inputClass}`}>
             <option value="">— Select —</option>
-            {HKU_FIRST_DEGREES.map((d) => (
-              <option key={d} value={d}>
+            {HKU_FIRST_DEGREES.map((d, index) => (
+              <option key={`${d}-${index}`} value={d}>
                 {d}
               </option>
             ))}

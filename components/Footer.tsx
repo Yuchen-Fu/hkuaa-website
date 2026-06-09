@@ -4,7 +4,7 @@ import { contactPoints } from "@/lib/site-data";
 const FRIEND_SITES = [
   { label: "HKU", href: "https://www.hku.hk/" },
   { label: "HKU Alumni", href: "https://www.alumni.hku.hk/" },
-  { label: "HKU AA Dining", href: "https://www.hkuaadining.hk/" },
+  { label: "HKUAA Dining", href: "https://www.hkuaadining.hk/" },
 ] as const;
 
 function InlineLinks({
@@ -33,12 +33,6 @@ function InlineLinks({
 }
 
 export default function Footer() {
-  const aboutItems = [
-    { label: "About HKUAA", href: "/about" },
-    { label: "Privacy", href: "/privacy" },
-    { label: "Terms of Use", href: "/terms-of-use" },
-  ] as const;
-
   const friendNav = FRIEND_SITES.map((s) => ({ ...s, external: true as const }));
 
   return (
@@ -53,9 +47,9 @@ export default function Footer() {
               </div>
             </div>
             <div>
-              <h3 className="text-xs font-semibold tracking-wide text-[#6b7c99]">About this site</h3>
+              <h3 className="text-xs font-semibold tracking-wide text-[#6b7c99]">Membership</h3>
               <div className="mt-3">
-                <InlineLinks items={[...aboutItems]} />
+                <InlineLinks items={[{ label: "Member Registration", href: "/membership/apply" }]} />
               </div>
             </div>
           </div>

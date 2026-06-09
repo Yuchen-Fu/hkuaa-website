@@ -6,42 +6,6 @@ export type MembershipType = {
   note: string;
 };
 
-export type NavItem = {
-  href: string;
-  label: string;
-  children?: Array<{ href: string; label: string }>;
-};
-
-export const navLinks: NavItem[] = [
-  { href: "/", label: "Home" },
-  {
-    href: "/about",
-    label: "About Us",
-    children: [
-      { href: "/about", label: "HKUAA History" },
-      { href: "/about/office-bearers", label: "Office Bearers" },
-      { href: "/about/subcommittees", label: "Subcommittees" },
-    ],
-  },
-  {
-    href: "/clubhouse",
-    label: "Clubhouse",
-  },
-  {
-    href: "/events",
-    label: "Events",
-  },
-  {
-    href: "/membership",
-    label: "Membership",
-  },
-  {
-    href: "/news",
-    label: "News",
-  },
-  { href: "/contact", label: "Contact" },
-];
-
 export const membershipTypes: MembershipType[] = [
   {
     key: "ordinary",
