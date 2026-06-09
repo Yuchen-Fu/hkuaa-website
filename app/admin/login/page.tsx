@@ -1,10 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<LoginShell />}>
+      <AdminLoginForm />
+    </Suspense>
+  )
+}
+
+function AdminLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const errorParam = searchParams.get('error')
@@ -37,11 +45,49 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow max-w-sm w-full space-y-4"
+    <LoginShell onSubmit={handleSubmit}>
+      <input
+        type="email"
+        required
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+        autoComplete="username"
+      />
+      <input
+        type="password"
+        required
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="w-full border rounded px-3 py-2"
+        autoComplete="current-password"
+      />
+
+      {err && <p className="text-red-600 text-sm">{err}</p>}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-slate-900 text-white rounded py-2 disabled:opacity-50"
       >
+        {loading ? 'Signing in…' : 'Sign in'}
+      </button>
+    </LoginShell>
+  )
+}
+
+function LoginShell({
+  children,
+  onSubmit,
+}: {
+  children?: React.ReactNode
+  onSubmit?: React.FormEventHandler<HTMLFormElement>
+}) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <form onSubmit={onSubmit} className="bg-white p-8 rounded-lg shadow max-w-sm w-full space-y-4">
         <div>
           <h1 className="text-2xl font-semibold">Staff Login</h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -49,34 +95,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2"
-          autoComplete="username"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2"
-          autoComplete="current-password"
-        />
-
-        {err && <p className="text-red-600 text-sm">{err}</p>}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-slate-900 text-white rounded py-2 disabled:opacity-50"
-        >
-          {loading ? 'Signing in…' : 'Sign in'}
-        </button>
+        {children}
       </form>
     </div>
   )
